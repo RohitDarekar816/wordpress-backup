@@ -1,0 +1,53 @@
+kind: pipeline
+name: ftp-to-google-drive
+
+steps:
+  - name: download-files-from-ftp
+    image: debian:bullseye-slim
+    commands:
+      # Install necessary dependencies
+      - apt-get update
+      - apt-get install -y lftp curl
+      - apt-get install -y rclone
+
+      # Login to FTP and download files
+      - echo "Logging into FTP server"
+      - lftp -u admin,Rohit@2023# 34.124.244.236 -e "set ssl:verify-certificate no; mirror --continue --verbose / /root; exit"
+
+      # # Authenticate with Google Drive using rclone (ensure you have already set up rclone config)
+      # - echo "Authenticating with Google Drive"
+      # - rclone config file
+      # - rclone copy /local/path remote:path/on/google/drive --progress
+      
+    secrets:
+      - ftp_user
+      - ftp_pass
+      - ftp_host
+      - google_drive_client_id
+      - google_drive_client_secret
+      - google_drive_refresh_token
+
+  # - name: upload-to-google-drive
+  #   image: rclone/rclone
+  #   commands:
+  #     # Use rclone to upload files to Google Drive
+  #     - rclone copy /local/path remote:path/to/google/drive --progress
+  #   secrets:
+  #     - google_drive_client_id
+  #     - google_drive_client_secret
+  #     - google_drive_refresh_token
+
+# Secrets configuration for FTP and Google Drive credentials
+secrets:
+  - name: ftp_user
+    external: true
+  - name: ftp_pass
+    external: true
+  - name: ftp_host
+    external: true
+  - name: google_drive_client_id
+    external: true
+  - name: google_drive_client_secret
+    external: true
+  - name: google_drive_refresh_token
+    external: true
